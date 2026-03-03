@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | SecureVault</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container" style="max-width: 600px;">
+        <h2>Pannello di Controllo</h2>
+
+        <div id="content-area"></div>
+
+        <br>
+        <button onclick="logout()" class="btn btn-outline">Esegui Logout</button>
+    </div>
+
+    <script>
+        function logout() {
+            localStorage.removeItem('auth_token');
+            window.location.href = 'index.html';
+        }
+
+        const token = localStorage.getItem('auth_token');
+        const contentArea = document.getElementById('content-area');
+
+        // Se non c'è il token nel Local Storage, torna al login
+        if (!token) {
+            window.location.href = 'login.html';
+        } else {
+            try {
+                // Decodifichiamo il token
+                const decodedString = atob(token);
+                const userData = JSON.parse(decodedString);
+
+                if (userData.role === 'admin') {
+                    const hiddenFlag = atob("SVRTT1N7bDBjNGxfNXQwcjRnM19oNGNrM2Rfc3VjYzMxNX0");
+
+                    contentArea.innerHTML = `
+                        <p>Livello di autorizzazione: <strong style="color: var(--primary);">admin</strong></p>
+                        <div class="flag-box">${hiddenFlag}</div>
+                        <p style="margin-top: 20px;">Accesso root garantito. Benvenuto Amministratore.</p>
+                    `;
+                } else {
+                    contentArea.innerHTML = `
+                        <p>Livello di autorizzazione: <strong style="color: var(--primary);">${userData.role}</strong></p>
+                        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); padding: 15px; border-radius: 8px;">
+                            Accesso limitato. Solo l'amministratore può visualizzare i dati sensibili della flag.
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                // Se il token è stato manipolato male e dà errore, fai il logout
+                logout();
+            }
+        }
+    </script>
+</body>
+
+</html>
